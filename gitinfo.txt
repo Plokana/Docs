@@ -1,0 +1,227 @@
+Creating Repo, adding files, commiting changes
+-----------------------------------------------------
+git init
+git remote add origin "https://github.com/Plokana/STLRepo.git"
+git pull origin master
+create files or folders
+git status
+git add <file/folder name>(git add -A to  add all the files without entering their names)
+git commit -m "description"(git commit -m -a "Description" <-a is to commit all the files)
+git push origin <branchname>
+
+Cloning and Checking out branches
+-------------------------------------------
+git clone "https://github.com/Plokana/STLRepo.git"
+git checkout <branchname> to switch to other existing branch
+git checkout -b <new branch> to create new branch and swict to it
+git checkout -- <filename> to remove chnages from a file
+
+git branch -D <branchname> to delete a branch
+git branch to know the branches
+git branch -m oldbranchname newbranchname to rename a branch
+
+
+Save changes while swicthing branches
+------------------------------------------
+git stash     to save change on stack before switcching to other branch
+git stash list to know the changes saved on the stack
+git stash pop to bring back the changes to local repo 
+git stash drop to remove changes from stack
+git stash drop <stash id> to remove particular stash from stack
+
+
+
+
+
+
+create a Repo
+-----------------
+git init to create a working tree repo which has .git folder
+git init --bare creates bare repository which has contents of .git folder but not .git folder, we can just do push and pull on this brach, it is shared central repository used to clone it and work on the project
+
+PULL & FETCH
+-------------------
+git pull origin master to bring changes to workspace ( to my desktop) = git fetch + git merge
+git fetch to bring changes to local repository(example to git server in lab) and to bring those to my workspace I need to do "git merge".
+
+	---------------------------
+	| REMOTE REPOSITORY       |-----------------
+	--------------------------                 |
+                 | git Fetch                       |
+	---------------------------                |
+	| LOCAL REPOSITORY        |                |git pull
+	---------------------------                |
+                 |git merge                        |
+	---------------------------                |
+	|       WORKSPACE         |<---------------|
+	---------------------------
+
+		 
+
+
+
+Merging
+------------
+git merge <branchname to be merged in> will be successful when there is no conflict
+when there is a conflict we need to resolve conflict from our local copy then commit and merge the files
+
+
+Example of conflict:
+<<<<<<< yours:sample.txt
+Conflict resolution is hard; // changes in my working tree
+let's go shopping.
+=======
+Git makes conflict resolution easy. //changes in remote repo
+>>>>>>> theirs:sample.txt
+
+Two types
+1. Fast-forward (branch pointer forward)
+Example :
+                        master hotfix
+                       /      /
+	C0 <-- C1 <-- C2 <-- C4
+                       \
+                        C3-- newissue
+
+After merge:
+                               master 
+				| 
+                               hotfix
+                              /
+        C0 <-- C1 <-- C2 <-- C4
+                       \
+                        C3-- newissue
+
+commit C4 pointed to by the branch hotfix you merged in was directly ahead of the commit C2 you’re on, Git simply moves the pointer forward
+
+
+2. Creating single snapshot (recursive' strategy)
+
+                               master 
+                              /
+        C0 <-- C1 <-- C2 <-- C4
+                       \
+                        C3<-- C5
+                               \ newissue
+
+Process to merge:
+                      common      master 
+                      ancestor   /
+        C0 <-- C1 <-- C2 <----- C4 (snapshot to merged into)
+                       \
+                        C3<-- C5 (snapshot to merge in)
+                               \ newissue
+
+Git creates a new snapshot that results from this three-way merge and automatically creates a new commit that points to it. 
+This is referred to as a merge commit, and is special in that it has more than one parent.
+
+
+After merge:
+	
+                                       master 
+                                       /
+        C0 <-- C1 <-- C2 <-- C4 <--- C6
+                       \            /
+                        C3 <-----  C5
+                                    \ newissue
+
+
+
+Rebase
+-----------
+git rebase is alternative to merging.
+Instead of creating a new commit that combines two objects, moves the commits of one of the branches on top of other.
+
+Example:
+
+                        master hotfix
+                       /      /
+	C0 <-- C1 <-- C2 <-- C4
+                       \
+                        C3-- newissue
+
+After Rebase:
+	                           /master 
+	C0 <-- C1 <--C2 <--- C3<---C4
+
+
+undo rebase: 
+git reflog will show you all the changes before and after rebase, and allow you to find the right one to reset to
+Example:
+priya@priya-VirtualBox:~/CPP/STL$ git reflog
+94393eb HEAD@{0}: commit: few changes in Vector.cpp
+664e676 HEAD@{1}: commit: vector implementation
+6893824 HEAD@{2}: initial pull
+
+git reset --hard ORIGIN_HEAD
+or gt reset --hard "HEAD@{5}" (here --hard will remove all the changes such as staged files, commit message everything, --soft will not remove staged files, but remove the commit & 
+its message)
+git reset HEAD~1 --> moves head pointer to step back, but dont remove any changes
+git revert <commit-id> --> commit id will be available from git log will be used when someone already pulled the changes committed
+Example of git log:
+priya@priya-VirtualBox:~/CPP/STL$ git log
+commit 94393ebdb85170e6f7d168be1c6a19730965fe67
+Author: Plokana <priyad.103@gmail.com>
+Date:   Thu May 2 05:18:17 2019 +0530
+
+    few changes in Vector.cpp
+
+
+
+recover undo :
+git checkout -b someNewBranchName {SHA of destroyed commit} will get commit SHAs from git reflog.
+
+UNDO the work:
+-------------
+1.undo staged files:
+git rm --cahced <file>
+git reset . 
+2. git clean -fd --> to remove local untracked files and directories
+3. Delete local branch : git branch -d <branch name>
+4. Delete Remote branch : git push <remotename>  --delete <branch name> or git push <remotename> :<branchname>
+
+
+Difference
+-----------------
+git diff HEAD
+
+
+Index
+---------------
+1. single, large binary file located in .git/index. 
+2. It is staging area
+3. git add <files> to save changes at index.
+4. The index is also known as cache, directory cache, current directory cache, staging area, staged files.
+
+Git Flow
+-----------
+
+WORKSPACE -------> INDEX --------> LOCAL REPO ---------> REMOTE REPO
+1. WORKSPACE ---- git add ----> INDEX
+2. INDEX --- git commit --> LOCAL REPO
+3. LOCAL REPO --- git push ---> REMOTE REPO
+4. WORKSAPCE <---- git pull --- REMOTE REPO
+5. LOCAL <---- git fetch ---- REMOTE REPO
+6. WORKSAPCE <--- git merge --- LOCAL REPO
+
+
+
+
+
+
+References
+----------
+1. https://blog.osteele.com/2008/05/my-git-workflow/
+2. https://mijingo.com/blog/what-is-a-bare-git-repository
+3. https://git-scm.com/book/en/v2/Git-Branching-Basic-Branching-and-Merging
+
+
+
+
+
+
+
+
+
+
+
