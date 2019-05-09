@@ -154,7 +154,7 @@ priya@priya-VirtualBox:~/CPP/STL$ git reflog
 6893824 HEAD@{2}: initial pull
 
 git reset --hard ORIGIN_HEAD
-or gt reset --hard "HEAD@{5}" (here --hard will remove all the changes such as staged files, commit message everything, --soft will not remove staged files, but remove the commit & 
+or git reset --hard "HEAD@{5}" (here --hard will remove all the changes such as staged files, commit message everything, --soft will not remove staged files, but remove the commit & 
 its message)
 git reset HEAD~1 --> moves head pointer to step back, but dont remove any changes
 git revert <commit-id> --> commit id will be available from git log will be used when someone already pulled the changes committed
